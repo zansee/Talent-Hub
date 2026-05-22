@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+
+  --color-brand-olive: #6B7C3A;
+  --color-brand-olive-dark: #505E2B;
+  --color-brand-olive-light: #8D9F56;
+  --color-brand-olive-lightest: #F5F7F2;
+
+  /* Theme Accents */
+  --color-accent-olive: #6B7C3A;
+  --color-accent-navy: #1E3A8A;
+  --color-accent-burgundy: #800020;
+  --color-accent-teal: #0D9488;
+  --color-accent-slate-blue: #475569;
+  --color-accent-forest-green: #1E4620;
+  --color-accent-terracotta: #C2593F;
+  --color-accent-purple: #6B21A8;
+  --color-accent-charcoal: #374151;
+  --color-accent-rose: #BE185D;
+
+  /* Dynamic Custom Accent */
+  --color-primary: var(--primary-color, #6B7C3A);
+  --color-primary-hover: var(--primary-hover-color, #505E2B);
+  --color-primary-light: var(--primary-light-color, #8D9F56);
+  --color-primary-lightest: var(--primary-lightest-color, #F5F7F2);
+  
+  /* Custom Backgrounds for Premium Mobile Dark Mode */
+  --color-mobile-dark-bg: #12160d;
+  --color-mobile-dark-surface: #1a1f14;
+  --color-mobile-dark-border: #2a3320;
+}
+
+/* Custom Base Styles */
+@layer base {
+  body {
+    @apply antialiased font-sans text-slate-800 bg-slate-50 transition-colors duration-200;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold tracking-tight;
+  }
+}
+
+/* Custom Utility Classes & Animations */
+@utility glassmorphism {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@utility glassmorphism-dark {
+  background: rgba(26, 31, 20, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(42, 51, 32, 0.4);
+}
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Tinder card swipe styling */
+.swipe {
+  position: absolute;
+}
+
+/* Custom fade animations */
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
