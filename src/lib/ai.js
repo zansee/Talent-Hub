@@ -8,6 +8,26 @@
 import { supabase } from './supabase';
 
 /**
+ * Extracts structured data from a CV text.
+ * @param {string} text - The raw text extracted from the CV document
+ * @param {string} userId - The user ID to associate the data with
+ * @returns {Promise<Object>} The extracted profile data
+ */
+export const extractCVData = async (text, userId) => {
+  try {
+    const { data, error } = await supabase.functions.invoke('cv-processor', {
+      body: { text, userId }
+    });
+    
+    if (error) throw error;
+    return data.data; // The edge function returns { success: true, data: {...} }
+  } catch (error) {
+    console.error('Error in extractCVData:', error);
+    throw error;
+  }
+};
+
+/**
  * Call the AI via a named Supabase Edge Function
  * @param {string} functionName - The edge function name (e.g., 'ai-cv-extract-score')
  * @param {object} payload - Body sent to the function
@@ -45,31 +65,39 @@ export const extractAndScoreCV = async (cvUrl, userId) => {
 };
 
 // ── Cover Letter Generation ────────────────────────────────────────────────
-export const generateCoverLetter = async ({ job, profile, tone = 'professional' }) => {
+/**
+ * Generates a tailored cover letter for a specific job application.
+ * @param {Object} profile - The candidate's profile data
+ * @param {Object} job - The job posting data
+ * @returns {Promise<string>} The generated cover letter text
+ */
+export const generateCoverLetter = async (profile, job) => {
   try {
-    return await callEdgeFunction('ai-cover-letter', { job, profile, tone });
-  } catch (err) {
-    console.warn('Cover letter generation failed:', err.message);
-    return {
-      cover_letter: `Dear Hiring Manager,\n\nI am writing to express my keen interest in the ${job?.title || 'position'} at ${job?.companies?.name || 'your organisation'}. With my background in ${profile?.preferred_industries?.join(' and ') || 'the industry'} and ${profile?.years_of_experience || 'several'} years of experience, I am confident I can add significant value to your team.\n\nMy qualifications include a ${profile?.highest_qualification || 'relevant qualification'} in ${profile?.field_of_study || 'a relevant field'}. I am particularly drawn to this opportunity because it aligns with my professional goals and expertise.\n\nI look forward to the opportunity to discuss how I can contribute to your organisation.\n\nKind regards,\n${profile?.full_name || 'Applicant'}`,
-    };
+    const { data, error } = await supabase.functions.invoke('generate-cover-letter', {
+      body: { profile, job }
+    });
+    
+    if (error) throw error;
+    return data.coverLetter;
+  } catch (error) {
+    console.error('Error in generateCoverLetter:', error);
+    throw error;
   }
 };
 
 // ── Screening Questions Suggestion ─────────────────────────────────────────
-export const suggestScreeningQuestions = async (job) => {
-  try {
-    return await callEdgeFunction('ai-screening-questions', { job });
-  } catch (err) {
-    console.warn('Screening questions failed:', err.message);
-    return {
-      questions: [
-        { question_text: `Do you have at least ${job?.required_experience || '2'} years of experience in ${job?.industry || 'this field'}?`, question_type: 'multiple_choice', options: ['Yes', 'No', 'Partially'] },
-        { question_text: 'Are you currently based in or willing to relocate to ' + (job?.location || 'Botswana') + '?', question_type: 'multiple_choice', options: ['Yes, currently here', 'Yes, willing to relocate', 'No'] },
-        { question_text: `Why are you interested in this role at ${job?.companies?.name || 'our company'}?`, question_type: 'free_text', options: null },
-      ],
-    };
-  }
+/**
+ * Mocks generating suggested screening questions for a job post.
+ * (Future enhancement: move to edge function)
+ */
+export const generateScreeningQuestions = async (jobTitle, industry) => {
+  await new Promise(resolve => setTimeout(resolve, 1500));
+
+  return [
+    `How many years of professional experience do you have as a ${jobTitle}?`,
+    `Describe a challenging project you completed in the ${industry} industry.`,
+    `What specific skills make you a strong fit for this role?`
+  ];
 };
 
 // ── Company AI Chat Assistant ───────────────────────────────────────────────
